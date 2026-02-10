@@ -836,25 +836,25 @@
       ["paste", "copy", "cut", "drop", "contextmenu"].forEach((evt) => {
         hiddenInput.addEventListener(evt, (e) => e.preventDefault());
       });
-
       function finishTest() {
         clearInterval(timer);
         document.querySelector(".typing-area").style.display = "none";
 
-        const elapsedMinutes = timerStarted
-          ? (Date.now() - typingStartTime) / 60000
-          : selectedTime / 60000;
+        // ✅ accurate elapsed time
+        const elapsedSeconds = selectedTime - timeLeft;
+        const elapsedMinutes = elapsedSeconds / 60;
 
-        // ✅ WORD-BASED WPM
+        // ✅ standard WPM formula
         const wpm =
           elapsedMinutes > 0
             ? Math.round(correctCharsTyped / 5 / elapsedMinutes)
             : 0;
 
-        // ✅ WORD-BASED accuracy
-        const acc = totalCharsTyped
-          ? Math.round((correctCharsTyped / totalCharsTyped) * 100)
-          : 0;
+        // ✅ accuracy
+        const acc =
+          totalCharsTyped > 0
+            ? Math.round((correctCharsTyped / totalCharsTyped) * 100)
+            : 0;
 
         let history = JSON.parse(localStorage.getItem("wpmHistory")) || [];
         history.push(wpm);
