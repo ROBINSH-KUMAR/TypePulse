@@ -475,6 +475,28 @@
         color: #ef4444;
         text-decoration: underline;
       }
+      .suggestion-item {
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        opacity: 0.85;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .suggestion-delete {
+        color: #ef4444;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+
+      .suggestion-delete:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
     </style>
   </head>
 
@@ -575,6 +597,12 @@
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(paras));
       }
+      function deleteParagraph(text) {
+        let paras = getStoredParas();
+        paras = paras.filter((p) => p !== text);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(paras));
+        showSuggestions();
+      }
 
       function showSuggestions() {
         const paras = getStoredParas();
@@ -588,12 +616,27 @@
         paras.forEach((p) => {
           const div = document.createElement("div");
           div.className = "suggestion-item";
-          div.textContent = p.slice(0, 120) + (p.length > 120 ? "..." : "");
 
-          div.onclick = () => {
+          const textSpan = document.createElement("span");
+          textSpan.textContent =
+            p.slice(0, 120) + (p.length > 120 ? "..." : "");
+
+          textSpan.onclick = () => {
             paraInput.value = p;
             suggestionBox.style.display = "none";
           };
+
+          const del = document.createElement("span");
+          del.className = "suggestion-delete";
+          del.innerHTML = '<i class="fa-solid fa-trash"></i>';
+
+          del.onclick = (e) => {
+            e.stopPropagation();
+            deleteParagraph(p);
+          };
+
+          div.appendChild(textSpan);
+          div.appendChild(del);
 
           suggestionBox.appendChild(div);
         });
