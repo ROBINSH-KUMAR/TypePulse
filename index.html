@@ -16,920 +16,646 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        height: 100vh;
-        font-family: Poppins, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #f3f4f6;
-        color: #111;
-        overflow: hidden;
-      }
-      body.dark {
-        background: #0f172a;
-        color: #e5e7eb;
-      }
+   <style>
+*{box-sizing:border-box;transition:background .3s,color .3s}
+body{
+  margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:Poppins,sans-serif;background:#f3f4f6;color:#111;overflow:hidden
+}
+body.dark{background:#1e1e2f;color:#e4e4e4}
 
-      /* Shapes */
-      * {
-        transition:
-          background 0.3s,
-          color 0.3s,
-          all 0.3s ease;
-      }
+.shape{position:fixed;border-radius:30px;z-index:-1}
+.yellow{width:220px;height:220px;background:#ffd54a;bottom:-60px;left:-30px;transform:rotate(15deg)}
+.red{width:300px;height:300px;background:#ef6b6b;top:-80px;right:-40px;transform:rotate(-20deg)}
+.cyan{width:150px;height:150px;background:#00c7b7;bottom:20px;right:60px;transform:rotate(25deg);opacity:.12}
 
-      body {
-        overflow-x: hidden;
-      }
+.app{
+  width:900px;max-width:95%;padding:30px;margin-top:-80px;
+  background:#ffffffd9;backdrop-filter:blur(20px);
+  border-radius:20px;box-shadow:0 20px 50px #0002
+}
+body.dark .app{background:#020617d9}
 
-      body.dark {
-        background: #1e1e2f;
-        color: #e4e4e4;
-      }
+textarea{
+  width:100%;height:250px;padding:14px;border:0;border-radius:12px;
+  resize:none;font:15px Poppins;background:#0000000d
+}
+textarea::-webkit-scrollbar,#paraSuggestions::-webkit-scrollbar{display:none}
+textarea,#paraSuggestions{scrollbar-width:none}
+body.dark textarea{background:#ffffff14;color:#fff}
 
-      .shape {
-        position: fixed;
-        border-radius: 30px;
-        z-index: -1;
-      }
+.btn,.dialog-btn.primary{
+  padding:14px 26px;border:0;border-radius:30px;
+  font-weight:600;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,#00c7b7,#007a74)
+}
 
-      .yellow {
-        width: 220px;
-        height: 220px;
-        background: #ffd54a;
-        bottom: -60px;
-        left: -30px;
-        transform: rotate(15deg);
-      }
+.time-options{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:15px;margin-bottom:20px
+}
+.time-card{
+  padding:16px;border-radius:16px;text-align:center;cursor:pointer;
+  background:#0000000d;font-weight:600
+}
+body.dark .time-card{background:#ffffff14}
+.time-card.active{background:#00c7b726;box-shadow:inset 0 0 0 2px #00c7b7}
 
-      .red {
-        width: 300px;
-        height: 300px;
-        background: #ef6b6b;
-        top: -80px;
-        right: -40px;
-        transform: rotate(-20deg);
-      }
+.typing-area{display:none;min-height:360px}
+.control-bar{display:flex;justify-content:space-between;align-items:center}
+.timer{font-size:20px;font-weight:600;color:#00c7b7}
 
-      .cyan {
-        width: 150px;
-        height: 150px;
-        background: #00c7b7;
-        bottom: 20px;
-        right: 60px;
-        transform: rotate(25deg);
-        opacity: 0.12;
-      }
+.text{margin-top:20px;font-size:18px;line-height:2.2;min-height:220px}
+.row{margin-bottom:18px}
+.reference{opacity:.35;font-size:20px;line-height:1.8}
+.row.active .reference{opacity:1}
+.reference span.correct{color:#00c7b7}
+.reference span.wrong{color:#ef4444}
+.input{
+  min-height:28px;font-size:20px;line-height:1.8;
+  border-bottom:2px solid #0003
+}
+body.dark .input{border-color:#fff4}
+.input span{color:#111}
+.input span.correct{color:#00c7b7}
+.input span.wrong{color:#ef4444;text-decoration:underline}
+body.dark .input span{color:#fff}
+body.dark .input span.correct{color:#00c7b7}
+body.dark .input span.wrong{color:#ef4444}
 
-      /* App */
-      .app {
-        width: 900px;
-        max-width: 95%;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-        margin-top: -80px;
-      }
-      body.dark .app {
-        background: rgba(2, 6, 23, 0.85);
-      }
+.caret{
+  display:inline-block;width:2px;height:1.2em;background:#00c7b7;
+  animation:blink 1s infinite;vertical-align:bottom
+}
+@keyframes blink{50%{opacity:0}}
 
-      textarea {
-        width: 100%;
-        padding: 14px;
-        border-radius: 12px;
-        border: none;
-        font-size: 15px;
-        background: rgba(0, 0, 0, 0.05);
-        height: 250px;
-        resize: none;
+#hiddenInput{position:absolute;opacity:0;pointer-events:none}
 
-        /* ✅ allow scroll but hide scrollbar */
-        overflow-y: auto;
-        scrollbar-width: none; /* Firefox */
-      }
+.reset-btn{
+  padding:12px 22px;border:0;border-radius:30px;cursor:pointer;
+  font-weight:600;color:#fff;
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+  box-shadow:0 10px 25px #ef444466
+}
+.reset-btn:hover{transform:translateY(-2px)}
+body.dark .reset-btn{
+  background:linear-gradient(135deg,#1f2933,#111827);
+  color:#f87171;box-shadow:inset 0 0 0 1px #f8717166,0 10px 25px #0009
+}
+body.dark .reset-btn:hover{
+  background:linear-gradient(135deg,#7f1d1d,#450a0a);color:#fff
+}
 
-      textarea::-webkit-scrollbar {
-        display: none; /* Chrome, Edge, Safari */
-      }
+.result{display:none;margin-top:30px}
+.result-box{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:25px;padding:25px;margin-bottom:30px;
+  border-radius:20px;background:#0000000d
+}
+body.dark .result-box{background:#ffffff14}
 
-      body.dark textarea {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-      }
+.result-card{
+  padding:25px;border-radius:18px;text-align:center;
+  background:#ffffffe6;box-shadow:0 12px 30px #0000001a
+}
+body.dark .result-card{background:#020617e6}
+.result-card h3{margin:0;font-size:14px;opacity:.7}
+.result-card p{margin:10px 0 0;font-size:32px;font-weight:600;color:#00c7b7}
 
-      .btn {
-        padding: 14px 26px;
-        border-radius: 30px;
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        background: linear-gradient(135deg, #00c7b7, #007a74);
-        color: #fff;
-      }
+.chart-wrapper{display:flex;align-items:flex-end;gap:12px}
+.y-axis{
+  height:180px;display:flex;flex-direction:column;
+  justify-content:space-between;font-size:12px;font-weight:600;opacity:.7
+}
+.chart{
+  flex:1;height:181px;display:flex;align-items:flex-end;gap:20px;
+  padding:20px;border-radius:18px;background:#0000000a;overflow:hidden
+}
+body.dark .chart{background:#ffffff0f}
+.bar{
+  width:42px;min-width:20px;
+  background:linear-gradient(135deg,#00c7b7,#007a74);
+  border-radius:10px 10px 0 0;position:relative
+}
+.bar span{
+  position:absolute;top:-24px;width:100%;text-align:center;
+  font-size:13px;font-weight:600
+}
 
-      /* Time options */
-      .time-options {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-      }
-      .time-card {
-        padding: 16px;
-        border-radius: 16px;
-        text-align: center;
-        cursor: pointer;
-        background: rgba(0, 0, 0, 0.05);
-        font-weight: 600;
-      }
-      body.dark .time-card {
-        background: rgba(255, 255, 255, 0.08);
-      }
-      .time-card.active {
-        background: rgba(0, 199, 183, 0.15);
-        box-shadow: inset 0 0 0 2px #00c7b7;
-      }
+.dark-toggle{
+  position:fixed;right:25px;bottom:25px;width:55px;height:55px;
+  border:0;border-radius:50%;background:#00c7b7;color:#fff;
+  font-size:22px;cursor:pointer
+}
 
-      /* Typing */
-      .typing-area {
-        display: none;
-        min-height: 360px;
-      }
-      .control-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .timer {
-        font-size: 20px;
-        font-weight: 600;
-        color: #00c7b7;
-      }
+#paraSuggestions{
+  display:none;margin-top:10px;padding:6px;max-height:160px;
+  overflow-y:auto;border-radius:12px;background:#0000000d
+}
+body.dark #paraSuggestions{background:#ffffff14}
 
-      .text {
-        margin-top: 20px;
-        font-size: 20px;
-        line-height: 1.9;
-        min-height: 140px;
-      }
-      .text span.correct {
-        color: #00c7b7;
-      }
-      .text span.wrong {
-        color: #ef4444;
-        text-decoration: underline;
-      }
+.suggestion-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;opacity:.85
+}
+.suggestion-item:hover{background:#00c7b726;opacity:1}
+.suggestion-delete{color:#ef4444;padding:4px 8px;border-radius:6px}
+.suggestion-delete:hover{background:#ef444426}
 
-      textarea.typing {
-        height: 120px;
-        margin-top: 20px;
-        resize: none;
-        font-size: 18px;
-      }
-      /* Close / Reset Button – Light Mode */
-      .reset-btn {
-        padding: 12px 22px;
-        border-radius: 30px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        background: linear-gradient(135deg, #ef4444, #b91c1c);
-        color: #fff;
-        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
-      }
+.ui-message{
+  position:fixed;top:25px;left:50%;width:min(420px,calc(100% - 30px));
+  display:flex;align-items:center;gap:14px;padding:15px 18px;
+  border-radius:16px;background:#fffffff2;backdrop-filter:blur(20px);
+  box-shadow:0 15px 40px #0000002e;z-index:9999;
+  opacity:0;pointer-events:none;transform:translate(-50%,-120px);
+  transition:transform .35s,opacity .35s
+}
+.ui-message.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+body.dark .ui-message{background:#0f172af5;color:#fff}
 
-      .reset-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 14px 30px rgba(239, 68, 68, 0.6);
-      }
+.ui-message-icon{
+  width:40px;height:40px;min-width:40px;display:flex;
+  align-items:center;justify-content:center;border-radius:12px;
+  background:#ef44441f;color:#ef4444;font-size:18px
+}
+.ui-message-content{display:flex;flex-direction:column;gap:2px;flex:1}
+.ui-message-content strong{font-size:14px}
+.ui-message-content span{font-size:13px;opacity:.7}
+.ui-message-close{
+  width:32px;height:32px;border:0;border-radius:8px;
+  background:transparent;color:inherit;cursor:pointer;font-size:16px
+}
 
-      /* 🌙 Dark Theme Close Button */
-      body.dark .reset-btn {
-        background: linear-gradient(135deg, #1f2933, #111827);
-        color: #f87171;
-        box-shadow:
-          inset 0 0 0 1px rgba(248, 113, 113, 0.4),
-          0 10px 25px rgba(0, 0, 0, 0.6);
-      }
+.dialog-overlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:#0006;backdrop-filter:blur(6px);z-index:9998;
+  opacity:0;visibility:hidden;transition:.25s
+}
+.dialog-overlay.show{opacity:1;visibility:visible}
+.dialog-box{
+  width:min(420px,calc(100% - 30px));padding:30px;border-radius:22px;
+  background:#fffffff5;text-align:center;
+  box-shadow:0 25px 70px #00000040;
+  transform:scale(.9) translateY(20px);transition:.3s
+}
+.dialog-overlay.show .dialog-box{transform:scale(1) translateY(0)}
+body.dark .dialog-box{background:#0f172af7;color:#fff}
 
-      /* Dark Hover */
-      body.dark .reset-btn:hover {
-        background: linear-gradient(135deg, #7f1d1d, #450a0a);
-        color: #fff;
-        box-shadow: 0 14px 35px rgba(127, 29, 29, 0.8);
-      }
+.dialog-icon{
+  width:60px;height:60px;margin:0 auto 15px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:18px;background:#00c7b71f;color:#00c7b7;font-size:25px
+}
+.dialog-box h3{margin:0 0 8px;font-size:20px}
+.dialog-box p{margin:0 auto 25px;font-size:14px;opacity:.65;line-height:1.6}
+.dialog-actions{display:flex;gap:12px}
+.dialog-btn{
+  flex:1;padding:12px 16px;border:0;border-radius:12px;
+  font:600 14px Poppins;cursor:pointer
+}
+.dialog-btn.secondary{background:#0000000f;color:inherit}
+body.dark .dialog-btn.secondary{background:#ffffff14}
 
-      /* ================= RESULT UI ================= */
-      .result {
-        display: none;
-        margin-top: 30px;
-      }
+@media(max-width:500px){
+  .dialog-actions{flex-direction:column}
+}
 
-      /* Result cards */
-      .result-box {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 20px;
-        padding: 25px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 25px;
-        margin-bottom: 30px;
-      }
-      body.dark .result-box {
-        background: rgba(255, 255, 255, 0.08);
-      }
+</style>
+</head>
 
-      .result-card {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 18px;
-        padding: 25px;
-        text-align: center;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-      }
-      body.dark .result-card {
-        background: rgba(2, 6, 23, 0.9);
-      }
+<body>
 
-      .result-card h3 {
-        margin: 0;
-        font-size: 14px;
-        opacity: 0.7;
-      }
-      .result-card p {
-        margin-top: 10px;
-        font-size: 32px;
-        font-weight: 600;
-        color: #00c7b7;
-      }
+<div class="shape yellow"></div>
+<div class="shape red"></div>
+<div class="shape cyan"></div>
 
-      /* Chart */
-      .chart {
-        display: flex;
-        align-items: flex-end;
-        justify-content: left;
-        gap: 33px;
-        height: 181px;
-        margin-top: 25px;
-        padding: 20px;
-        border-radius: 18px;
-        background: rgba(0, 0, 0, 0.04);
-        width: 781px;
-      }
+<div class="app">
 
-      body.dark .chart {
-        background: rgba(255, 255, 255, 0.06);
-      }
+  <div class="setup">
+    <h2><i class="fa-solid fa-keyboard"></i> Typing Test Setup</h2>
 
-      .bar {
-        width: 42px;
-        background: linear-gradient(135deg, #00c7b7, #007a74);
-        border-radius: 10px 10px 0 0;
-        position: relative;
-      }
-      .bar span {
-        position: absolute;
-        top: -24px;
-        width: 100%;
-        text-align: center;
-        font-size: 13px;
-        font-weight: 600;
-      }
-
-      /* Theme Toggle */
-      .dark-toggle {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        border: none;
-        background: #00c7b7;
-        color: #fff;
-        font-size: 22px;
-        cursor: pointer;
-      }
-      .chart-wrapper {
-        display: flex;
-        align-items: flex-end;
-        gap: 12px;
-      }
-
-      .y-axis {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 180px;
-        font-size: 12px;
-        font-weight: 600;
-        opacity: 0.7;
-      }
-
-      .y-axis span {
-        transform: translateY(6px);
-      }
-      /* === Lined typing format (like screenshot) === */
-      .text {
-        margin-top: 20px;
-        font-size: 18px;
-        line-height: 2.2;
-        min-height: 220px;
-      }
-
-      .line {
-        display: block;
-        padding: 6px 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-        opacity: 0.4;
-      }
-
-      body.dark .line {
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .line.active {
-        opacity: 1;
-      }
-
-      .line span.correct {
-        color: #00c7b7;
-      }
-
-      .line span.wrong {
-        color: #ef4444;
-        text-decoration: underline;
-      }
-      .line {
-        transition:
-          transform 0.25s ease,
-          opacity 0.25s ease;
-      }
-      #hiddenInput {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .row {
-        margin-bottom: 18px;
-      }
-
-      .reference {
-        opacity: 0.35;
-        font-size: 20px;
-        line-height: 1.8;
-      }
-
-      .row.active .reference {
-        opacity: 1;
-      }
-
-      .input {
-        min-height: 28px;
-        font-size: 20px;
-        line-height: 1.8;
-        border-bottom: 2px solid rgba(0, 0, 0, 0.2);
-      }
-
-      body.dark .input {
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      .caret {
-        display: inline-block;
-        width: 2px;
-        height: 1.2em;
-        background: #00c7b7;
-        animation: blink 1s infinite;
-        vertical-align: bottom;
-      }
-
-      @keyframes blink {
-        50% {
-          opacity: 0;
-        }
-      }
-      #paraSuggestions {
-        margin-top: 10px;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 12px;
-        padding: 6px;
-
-        max-height: 160px;
-
-        /* ✅ allow scroll but hide scrollbar */
-        overflow-y: auto;
-        scrollbar-width: none; /* Firefox */
-      }
-
-      #paraSuggestions::-webkit-scrollbar {
-        display: none; /* Chrome, Edge, Safari */
-      }
-
-      body.dark #paraSuggestions {
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      .suggestion-item {
-        padding: 10px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        opacity: 0.85;
-      }
-
-      .suggestion-item:hover {
-        background: rgba(0, 199, 183, 0.15);
-        opacity: 1;
-      }
-      /* Upper sentence feedback */
-      .reference span.correct {
-        color: #00c7b7;
-      }
-
-      .reference span.wrong {
-        color: #ef4444;
-      }
-
-      /* Typed line must stay neutral */
-      .input span {
-        color: #111;
-      }
-
-      body.dark .input span {
-        color: #ffffff;
-      }
-      /* ✅ Fix: allow green/red in dark mode for typed text */
-      body.dark .input span.correct {
-        color: #00c7b7;
-      }
-
-      body.dark .input span.wrong {
-        color: #ef4444;
-        text-decoration: underline;
-      }
-      .suggestion-item {
-        padding: 10px 12px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        opacity: 0.85;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .suggestion-delete {
-        color: #ef4444;
-        font-size: 14px;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 6px;
-      }
-
-      .suggestion-delete:hover {
-        background: rgba(239, 68, 68, 0.15);
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="shape yellow"></div>
-    <div class="shape red"></div>
-    <div class="shape cyan"></div>
-
-    <div class="app">
-      <div class="setup">
-        <h2><i class="fa-solid fa-keyboard"></i> Typing Test Setup</h2>
-
-        <div class="time-options">
-          <div class="time-card" data-time="60">1 Min</div>
-
-          <div class="time-card" data-time="300">5 Min</div>
-          <div class="time-card" data-time="600">10 Min</div>
-          <div class="time-card" data-time="1200">20 Min</div>
-          <div class="time-card" data-time="1800">30 Min</div>
-          <div class="time-card" data-time="3600">60 Min</div>
-        </div>
-
-        <textarea
-          id="paraInput"
-          placeholder="Paste paragraph here..."
-        ></textarea>
-        <div id="paraSuggestions" style="display: none"></div>
-
-        <button class="btn" onclick="startTest()">Start Test</button>
-      </div>
-
-      <div class="typing-area">
-        <div class="control-bar">
-          <div class="timer">⏱ <span id="time">00:00</span></div>
-          <div>
-            <button class="reset-btn" onclick="resetTest()">Reset</button>
-            <button class="reset-btn" onclick="finishTest()">✖ Close</button>
-          </div>
-        </div>
-        <div class="text" id="text"></div>
-
-        <!-- Hidden input to capture typing -->
-        <input id="hiddenInput" autocomplete="off" />
-      </div>
-
-      <div class="result" id="result"></div>
+    <div class="time-options">
+      <div class="time-card" data-time="60">1 Min</div>
+      <div class="time-card" data-time="300">5 Min</div>
+      <div class="time-card active" data-time="600">10 Min</div>
+      <div class="time-card" data-time="1200">20 Min</div>
+      <div class="time-card" data-time="1800">30 Min</div>
+      <div class="time-card" data-time="3600">60 Min</div>
     </div>
 
-    <button class="dark-toggle" id="darkToggle">
-      <i class="fas fa-sun"></i>
-    </button>
-    <script>
-      let timerStarted = false;
-      let typingStartTime = 0;
-      let sentences = [];
-      let currentLine = 0;
-      let startTime = 0;
-      let timer;
-      let selectedTime = null;
-      let timeLeft = 0;
-      let totalCharsTyped = 0;
-      let correctCharsTyped = 0;
-      let typedLines = [];
-
-      let totalTyped = 0;
-      let correctTyped = 0;
-
-      const hiddenInput = document.getElementById("hiddenInput");
-      const text = document.getElementById("text");
-      const result = document.getElementById("result");
-      const time = document.getElementById("time");
-      const paraInput = document.getElementById("paraInput");
-      paraInput.addEventListener("focus", showSuggestions);
-
-      paraInput.addEventListener("input", () => {
-        if (!paraInput.value.trim()) {
-          showSuggestions();
-        } else {
-          suggestionBox.style.display = "none";
-        }
-      });
-
-      const STORAGE_KEY = "typing_paragraph_history";
-      const suggestionBox = document.getElementById("paraSuggestions");
-
-      function getStoredParas() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      }
-
-      function saveParagraph(text) {
-        let paras = getStoredParas();
-
-        // remove duplicate
-        paras = paras.filter((p) => p !== text);
-
-        paras.unshift(text);
-
-        if (paras.length > 5) paras.length = 5;
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(paras));
-      }
-      function deleteParagraph(text) {
-        let paras = getStoredParas();
-        paras = paras.filter((p) => p !== text);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(paras));
-        showSuggestions();
-      }
-
-      function showSuggestions() {
-        const paras = getStoredParas();
-        suggestionBox.innerHTML = "";
-
-        if (!paras.length) {
-          suggestionBox.style.display = "none";
-          return;
-        }
-
-        paras.forEach((p) => {
-          const div = document.createElement("div");
-          div.className = "suggestion-item";
-
-          const textSpan = document.createElement("span");
-          textSpan.textContent =
-            p.slice(0, 120) + (p.length > 120 ? "..." : "");
-
-          textSpan.onclick = () => {
-            paraInput.value = p;
-            suggestionBox.style.display = "none";
-          };
-
-          const del = document.createElement("span");
-          del.className = "suggestion-delete";
-          del.innerHTML = '<i class="fa-solid fa-trash"></i>';
-
-          del.onclick = (e) => {
-            e.stopPropagation();
-            deleteParagraph(p);
-          };
-
-          div.appendChild(textSpan);
-          div.appendChild(del);
-
-          suggestionBox.appendChild(div);
-        });
-
-        suggestionBox.style.display = "block";
-      }
-
-      function formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = sec % 60;
-        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-      }
-
-      // theme
-      const body = document.body;
-      const toggle = darkToggle;
-      const icon = toggle.querySelector("i");
-
-      function setTheme(t) {
-        body.classList.toggle("dark", t === "dark");
-        icon.className = t === "dark" ? "fas fa-sun" : "fas fa-moon";
-        localStorage.setItem("theme", t);
-      }
-      setTheme(localStorage.getItem("theme") || "dark");
-      toggle.onclick = () =>
-        setTheme(body.classList.contains("dark") ? "light" : "dark");
-
-      // time select
-      document.querySelectorAll(".time-card").forEach((c) => {
-        c.onclick = () => {
-          document
-            .querySelectorAll(".time-card")
-            .forEach((x) => x.classList.remove("active"));
-          c.classList.add("active");
-          selectedTime = +c.dataset.time;
-        };
-      });
-
-      window.addEventListener("load", () => {
-        const d = document.querySelector('.time-card[data-time="600"]');
-        if (d) {
-          d.classList.add("active");
-          selectedTime = 600;
-        }
-      });
-      function shuffleArray(arr) {
-        const copy = [...arr];
-        for (let i = copy.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [copy[i], copy[j]] = [copy[j], copy[i]];
-        }
-        return copy;
-      }
-
-      function startTest() {
-        typedLines = [];
-        totalCharsTyped = 0;
-        correctCharsTyped = 0;
-
-        const textVal = paraInput.value.trim();
-        if (!selectedTime || !textVal) return alert("Select time & text");
-        saveParagraph(textVal);
-
-        totalTyped = 0;
-        correctTyped = 0;
-        timerStarted = false;
-        timeLeft = selectedTime;
-        time.textContent = formatTime(timeLeft);
-
-        let rawSentences = textVal.split(/\n+|(?<=[.!?])\s+/);
-
-        // ask user
-        const wantShuffle = confirm("Do you want to shuffle the sentences?");
-
-        sentences = wantShuffle ? shuffleArray(rawSentences) : rawSentences;
-
-        currentLine = 0;
-        renderLines();
-
-        document.querySelector(".setup").style.display = "none";
-        document.querySelector(".typing-area").style.display = "block";
-        result.style.display = "none";
-
-        document.body.style.userSelect = "none";
-        hiddenInput.focus();
-      }
-
-      function renderLines() {
-        text.innerHTML = "";
-        hiddenInput.value = "";
-
-        for (let i = 0; i < 5; i++) {
-          const sentence = sentences[currentLine + i];
-          if (!sentence) break;
-
-          const row = document.createElement("div");
-          row.className = "row" + (i === 0 ? " active" : "");
-
-          const ref = document.createElement("div");
-          ref.className = "reference";
-          ref.innerHTML = sentence
-            .split("")
-            .map((ch) => `<span>${ch}</span>`)
-            .join("");
-
-          const input = document.createElement("div");
-          input.className = "input";
-
-          row.append(ref, input);
-          text.appendChild(row);
-        }
-      }
-
-      hiddenInput.addEventListener("input", () => {
-        // ⏱ start timer on first key press
-        if (!timerStarted) {
-          timerStarted = true;
-          typingStartTime = Date.now();
-
-          timer = setInterval(() => {
-            timeLeft--;
-            time.textContent = formatTime(timeLeft);
-            if (timeLeft <= 0) finishTest();
-          }, 1000);
-        }
-
-        const activeRow = document.querySelector(".row.active");
-        if (!activeRow) return;
-
-        const refText = activeRow.querySelector(".reference").textContent;
-        const inputLine = activeRow.querySelector(".input");
-
-        const typedText = hiddenInput.value;
-        // ===== Upper sentence live green / red =====
-        const refSpans = activeRow.querySelectorAll(".reference span");
-
-        refSpans.forEach((span, i) => {
-          span.classList.remove("correct", "wrong");
-
-          if (i < typedText.length) {
-            if (typedText[i] === span.textContent) {
-              span.classList.add("correct");
-            } else {
-              span.classList.add("wrong");
-            }
-          }
-        });
-
-        typedLines[currentLine] = typedText;
-        const refWords = refText.split(" ");
-        const typedWords = typedText.split(" ");
-        // reset per-input calculation
-        totalCharsTyped = 0;
-        correctCharsTyped = 0;
-
-        // calculate char accuracy for ALL typed content so far
-        sentences.forEach((sentence, index) => {
-          const typed = typedLines[index] || "";
-          const limit = Math.min(sentence.length, typed.length);
-
-          for (let i = 0; i < limit; i++) {
-            totalCharsTyped++;
-            if (typed[i] === sentence[i]) {
-              correctCharsTyped++;
-            }
-          }
-
-          // count extra typed characters as incorrect
-          if (typed.length > sentence.length) {
-            totalCharsTyped += typed.length - sentence.length;
-          }
-        });
-
-        inputLine.innerHTML = "";
-
-        let wordsTypedThisLine = 0;
-        let correctWordsThisLine = 0;
-
-        typedWords.forEach((typedWord, wIndex) => {
-          const refWord = refWords[wIndex] || "";
-          const wordSpan = document.createElement("span");
-
-          let isCorrect = true;
-
-          // 🔍 LIVE letter-by-letter check
-          for (let i = 0; i < typedWord.length; i++) {
-            if (typedWord[i] !== refWord[i]) {
-              isCorrect = false;
-              break;
-            }
-          }
-
-          // ❌ longer than reference → wrong
-          if (typedWord.length > refWord.length) {
-            isCorrect = false;
-          }
-
-          wordSpan.className = isCorrect ? "correct" : "wrong";
-          wordSpan.textContent = typedWord + " ";
-
-          inputLine.appendChild(wordSpan);
-
-          // ✅ count ONLY after space (final word)
-          if (
-            typedText.endsWith(" ") &&
-            typedWord.length > 0 &&
-            wIndex === typedWords.length - 2
-          ) {
-            wordsTypedThisLine++;
-            if (typedWord === refWord) {
-              correctWordsThisLine++;
-            }
-          }
-        });
-
-        // caret
-        const caret = document.createElement("span");
-        caret.className = "caret";
-        inputLine.appendChild(caret);
-
-        totalTyped += wordsTypedThisLine;
-        correctTyped += correctWordsThisLine;
-
-        // auto move when sentence done
-        if (typedText.length >= refText.length) {
-          currentLine++;
-          hiddenInput.value = "";
-          renderLines();
-        }
-      });
-
-      // keep focus always
-      document.addEventListener("click", () => {
-        if (document.querySelector(".typing-area").style.display === "block") {
-          hiddenInput.focus();
-        }
-      });
-
-      // block cheating
-      ["paste", "copy", "cut", "drop", "contextmenu"].forEach((evt) => {
-        hiddenInput.addEventListener(evt, (e) => e.preventDefault());
-      });
-      function finishTest() {
-        clearInterval(timer);
-        document.querySelector(".typing-area").style.display = "none";
-
-        // ✅ accurate elapsed time
-        const elapsedSeconds = selectedTime - timeLeft;
-        const elapsedMinutes = elapsedSeconds / 60;
-
-        // ✅ standard WPM formula
-        const wpm =
-          elapsedMinutes > 0
-            ? Math.round(correctCharsTyped / 5 / elapsedMinutes)
-            : 0;
-
-        // ✅ accuracy
-        const acc =
-          totalCharsTyped > 0
-            ? Math.round((correctCharsTyped / totalCharsTyped) * 100)
-            : 0;
-
-        let history = JSON.parse(localStorage.getItem("wpmHistory")) || [];
-        history.push(wpm);
-        history = history.slice(-10);
-        localStorage.setItem("wpmHistory", JSON.stringify(history));
-
-        let bars = `
-<div class="chart-wrapper">
-  <div class="y-axis">
-    <span>75</span>
-    <span>65</span>
-    <span>45</span>
-    <span>25</span>
+    <textarea id="paraInput" placeholder="Paste paragraph here..."></textarea>
+    <div id="paraSuggestions"></div>
+    <button class="btn" onclick="startTest()">Start Test</button>
   </div>
-  <div class="chart">
-`;
 
-        history.forEach((v) => {
-          const height = Math.min((v / 75) * 180, 180);
-          bars += `<div class="bar" style="height:${height}px"><span>${v}</span></div>`;
-        });
+  <div class="typing-area">
+    <div class="control-bar">
+      <div class="timer">⏱ <span id="time">10:00</span></div>
+      <div>
+        <button class="reset-btn" onclick="resetTest()">Reset</button>
+        <button class="reset-btn" onclick="finishTest()">✖ Close</button>
+      </div>
+    </div>
 
-        bars += `
+    <div class="text" id="text"></div>
+    <input id="hiddenInput" autocomplete="off">
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<button class="dark-toggle" id="darkToggle">
+  <i class="fas fa-sun"></i>
+</button>
+
+<div id="uiMessage" class="ui-message">
+  <div class="ui-message-icon" id="uiMessageIcon">
+    <i class="fa-solid fa-circle-exclamation"></i>
+  </div>
+  <div class="ui-message-content">
+    <strong id="uiMessageTitle">Notice</strong>
+    <span id="uiMessageText"></span>
+  </div>
+  <button class="ui-message-close" onclick="hideMessage()">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+</div>
+
+<div id="shuffleDialog" class="dialog-overlay">
+  <div class="dialog-box">
+    <div class="dialog-icon"><i class="fa-solid fa-shuffle"></i></div>
+    <h3>Shuffle Sentences?</h3>
+    <p>Do you want to shuffle the sentences before starting the typing test?</p>
+
+    <div class="dialog-actions">
+      <button class="dialog-btn secondary" onclick="chooseShuffle(false)">
+        No, Keep Order
+      </button>
+      <button class="dialog-btn primary" onclick="chooseShuffle(true)">
+        <i class="fa-solid fa-shuffle"></i> Yes, Shuffle
+      </button>
+    </div>
   </div>
 </div>
-`;
 
-        result.style.display = "block";
-        result.innerHTML = `
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+const body=document.body,
+      setup=$(".setup"),
+      typingArea=$(".typing-area"),
+      hiddenInput=$("#hiddenInput"),
+      text=$("#text"),
+      result=$("#result"),
+      time=$("#time"),
+      paraInput=$("#paraInput"),
+      suggestionBox=$("#paraSuggestions"),
+      toggle=$("#darkToggle"),
+      icon=toggle.querySelector("i"),
+      message=$("#uiMessage"),
+      messageTitle=$("#uiMessageTitle"),
+      messageText=$("#uiMessageText"),
+      messageIcon=$("#uiMessageIcon"),
+      shuffleDialog=$("#shuffleDialog");
+
+const STORAGE_KEY="typing_paragraph_history";
+
+let selectedTime=600,
+    timeLeft=600,
+    timer,
+    timerStarted=false,
+    sentences=[],
+    currentLine=0,
+    typedLines=[],
+    totalCharsTyped=0,
+    correctCharsTyped=0,
+    shuffleChoice;
+
+/* ---------- Message ---------- */
+
+let messageTimer;
+
+function showMessage(msg,title="Notice",type="error"){
+  clearTimeout(messageTimer);
+  messageTitle.textContent=title;
+  messageText.textContent=msg;
+
+  const success=type==="success";
+  messageIcon.innerHTML=`<i class="fa-solid fa-circle-${success?"check":"exclamation"}"></i>`;
+  messageIcon.style.color=success?"#00a896":"#ef4444";
+  messageIcon.style.background=success?"#00c7b71f":"#ef44441f";
+
+  message.classList.add("show");
+  messageTimer=setTimeout(hideMessage,3500);
+}
+
+function hideMessage(){
+  message.classList.remove("show");
+}
+
+/* ---------- Shuffle Dialog ---------- */
+
+function showShuffleDialog(){
+  shuffleDialog.classList.add("show");
+  return new Promise(resolve=>shuffleChoice=resolve);
+}
+
+function chooseShuffle(value){
+  shuffleDialog.classList.remove("show");
+  shuffleChoice?.(value);
+  shuffleChoice=null;
+}
+
+/* ---------- Paragraph History ---------- */
+
+function getStoredParas(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+}
+
+function saveParagraph(value){
+  let paras=getStoredParas().filter(p=>p!==value);
+  paras.unshift(value);
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(paras.slice(0,5)));
+}
+
+function deleteParagraph(value){
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(getStoredParas().filter(p=>p!==value))
+  );
+  showSuggestions();
+}
+
+function showSuggestions(){
+  const paras=getStoredParas();
+  suggestionBox.innerHTML="";
+
+  if(!paras.length){
+    suggestionBox.style.display="none";
+    return;
+  }
+
+  paras.forEach(p=>{
+    const item=document.createElement("div");
+    item.className="suggestion-item";
+
+    const span=document.createElement("span");
+    span.textContent=p.slice(0,120)+(p.length>120?"...":"");
+    span.onclick=()=>{
+      paraInput.value=p;
+      suggestionBox.style.display="none";
+    };
+
+    const del=document.createElement("span");
+    del.className="suggestion-delete";
+    del.innerHTML='<i class="fa-solid fa-trash"></i>';
+    del.onclick=e=>{
+      e.stopPropagation();
+      deleteParagraph(p);
+    };
+
+    item.append(span,del);
+    suggestionBox.appendChild(item);
+  });
+
+  suggestionBox.style.display="block";
+}
+
+paraInput.addEventListener("focus",showSuggestions);
+paraInput.addEventListener("input",()=>{
+  paraInput.value.trim()
+    ? suggestionBox.style.display="none"
+    : showSuggestions();
+});
+
+/* ---------- Theme ---------- */
+
+function setTheme(theme){
+  body.classList.toggle("dark",theme==="dark");
+  icon.className=theme==="dark"?"fas fa-sun":"fas fa-moon";
+  localStorage.setItem("theme",theme);
+}
+
+setTheme(localStorage.getItem("theme")||"dark");
+
+toggle.onclick=()=>{
+  setTheme(body.classList.contains("dark")?"light":"dark");
+};
+
+/* ---------- Time ---------- */
+
+$$(".time-card").forEach(card=>{
+  card.onclick=()=>{
+    $$(".time-card").forEach(c=>c.classList.remove("active"));
+    card.classList.add("active");
+    selectedTime=+card.dataset.time;
+  };
+});
+
+function formatTime(sec){
+  return `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`;
+}
+
+/* ---------- Shuffle ---------- */
+
+function shuffleArray(arr){
+  arr=[...arr];
+
+  for(let i=arr.length-1;i;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+
+  return arr;
+}
+
+/* ---------- Start ---------- */
+
+async function startTest(){
+
+  const value=paraInput.value.trim();
+
+  if(!selectedTime)
+    return showMessage("Please select a typing test duration first.","Time Required");
+
+  if(!value)
+    return showMessage("Please enter or paste some text before starting.","Text Required");
+
+  saveParagraph(value);
+
+  clearInterval(timer);
+  timerStarted=false;
+  timeLeft=selectedTime;
+  time.textContent=formatTime(timeLeft);
+
+  const raw=value.split(/\n+|(?<=[.!?])\s+/);
+  sentences=(await showShuffleDialog())?shuffleArray(raw):raw;
+
+  currentLine=0;
+  typedLines=[];
+  totalCharsTyped=0;
+  correctCharsTyped=0;
+
+  renderLines();
+
+  setup.style.display="none";
+  typingArea.style.display="block";
+  result.style.display="none";
+  body.style.userSelect="none";
+
+  hiddenInput.value="";
+  hiddenInput.focus();
+}
+
+/* ---------- Render ---------- */
+
+function renderLines(){
+  text.innerHTML="";
+  hiddenInput.value="";
+
+  sentences.slice(currentLine,currentLine+5).forEach((sentence,i)=>{
+    const row=document.createElement("div");
+    row.className=`row${i===0?" active":""}`;
+
+    const ref=document.createElement("div");
+    ref.className="reference";
+    ref.innerHTML=[...sentence]
+      .map(ch=>`<span>${ch}</span>`)
+      .join("");
+
+    const input=document.createElement("div");
+    input.className="input";
+
+    row.append(ref,input);
+    text.appendChild(row);
+  });
+}
+
+/* ---------- Typing ---------- */
+
+hiddenInput.addEventListener("input",()=>{
+
+  if(!timerStarted){
+    timerStarted=true;
+
+    timer=setInterval(()=>{
+      timeLeft--;
+      time.textContent=formatTime(timeLeft);
+
+      if(timeLeft<=0) finishTest();
+    },1000);
+  }
+
+  const row=$(".row.active");
+  if(!row)return;
+
+  const reference=row.querySelector(".reference");
+  const input=row.querySelector(".input");
+  const typed=hiddenInput.value;
+
+  /* Reference character feedback */
+  reference.querySelectorAll("span").forEach((span,i)=>{
+    span.classList.remove("correct","wrong");
+
+    if(i<typed.length)
+      span.classList.add(
+        typed[i]===span.textContent?"correct":"wrong"
+      );
+  });
+
+  typedLines[currentLine]=typed;
+
+  /* Calculate overall accuracy */
+  totalCharsTyped=0;
+  correctCharsTyped=0;
+
+  sentences.forEach((sentence,i)=>{
+    const value=typedLines[i]||"";
+    const limit=Math.min(sentence.length,value.length);
+
+    for(let j=0;j<limit;j++){
+      totalCharsTyped++;
+      if(value[j]===sentence[j]) correctCharsTyped++;
+    }
+
+    if(value.length>sentence.length)
+      totalCharsTyped+=value.length-sentence.length;
+  });
+
+  /* Typed text feedback */
+  input.innerHTML="";
+
+  typed.split(" ").forEach((word,i)=>{
+    if(!word && i===typed.split(" ").length-1)return;
+
+    const refWord=reference.textContent.split(" ")[i]||"";
+    const span=document.createElement("span");
+
+    const correct=
+      word===refWord ||
+      (word.length<=refWord.length &&
+       [...word].every((c,j)=>c===refWord[j]));
+
+    span.className=correct?"correct":"wrong";
+    span.textContent=word+" ";
+    input.appendChild(span);
+  });
+
+  const caret=document.createElement("span");
+  caret.className="caret";
+  input.appendChild(caret);
+
+  /* Next sentence */
+  if(typed.length>=reference.textContent.length){
+    currentLine++;
+    renderLines();
+  }
+});
+
+/* ---------- Focus / Anti Cheat ---------- */
+
+document.addEventListener("click",()=>{
+  if(typingArea.style.display==="block") hiddenInput.focus();
+});
+
+["paste","copy","cut","drop","contextmenu"].forEach(evt=>{
+  hiddenInput.addEventListener(evt,e=>e.preventDefault());
+});
+
+/* ---------- Result ---------- */
+
+function finishTest(){
+
+  clearInterval(timer);
+  timerStarted=false;
+  typingArea.style.display="none";
+  body.style.userSelect="auto";
+
+  const elapsed=selectedTime-timeLeft;
+  const minutes=elapsed/60;
+
+  const wpm=minutes>0
+    ?Math.round(correctCharsTyped/5/minutes)
+    :0;
+
+  const accuracy=totalCharsTyped
+    ?Math.round(correctCharsTyped/totalCharsTyped*100)
+    :0;
+
+  let history=JSON.parse(localStorage.getItem("wpmHistory")||"[]");
+  history=[...history,wpm].slice(-10);
+  localStorage.setItem("wpmHistory",JSON.stringify(history));
+
+  const bars=history.map(v=>`
+    <div class="bar" style="height:${Math.min(v/75*180,180)}px">
+      <span>${v}</span>
+    </div>
+  `).join("");
+
+  result.style.display="block";
+
+  result.innerHTML=`
     <div class="result-box">
       <div class="result-card">
         <h3>Words Per Minute</h3>
@@ -937,27 +663,41 @@
       </div>
       <div class="result-card">
         <h3>Accuracy</h3>
-        <p>${acc}%</p>
+        <p>${accuracy}%</p>
       </div>
     </div>
 
-    <h3 style="text-align:center;margin-bottom:10px;">Previous Speeds</h3>
-    ${bars}
+    <h3 style="text-align:center;margin-bottom:10px">Previous Speeds</h3>
 
-    <div style="text-align:center;margin-top:30px;">
+    <div class="chart-wrapper">
+      <div class="y-axis">
+        <span>75</span><span>65</span><span>45</span><span>25</span>
+      </div>
+      <div class="chart">${bars}</div>
+    </div>
+
+    <div style="text-align:center;margin-top:30px">
       <button class="reset-btn" onclick="resetTest()">↻ Restart Test</button>
     </div>
   `;
-      }
+}
 
-      function resetTest() {
-        clearInterval(timer);
-        document.body.style.userSelect = "auto";
-        hiddenInput.value = "";
-        document.querySelector(".typing-area").style.display = "none";
-        document.querySelector(".setup").style.display = "block";
-        result.style.display = "none";
-      }
-    </script>
-  </body>
+/* ---------- Reset ---------- */
+
+function resetTest(){
+  clearInterval(timer);
+  timerStarted=false;
+  body.style.userSelect="auto";
+  hiddenInput.value="";
+
+  typingArea.style.display="none";
+  result.style.display="none";
+  setup.style.display="block";
+
+  timeLeft=selectedTime;
+  time.textContent=formatTime(selectedTime);
+}
+</script>
+
+</body>
 </html>
